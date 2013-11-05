@@ -1,0 +1,22 @@
+!tape
+name: testTape
+interactions:
+- recorded: 2013-11-05T18:47:19.370Z
+  request:
+    method: GET
+    uri: https://www.example.com/test
+    headers:
+      Accept: '*/*'
+      Accept-Charset: UTF-8,*;q=.1
+      Accept-Encoding: gzip
+      Connection: keep-alive
+      Host: www.example.com
+      User-Agent: Java/1.7.0_40
+  response:
+    status: 200
+    headers:
+      Content-Type: text/plain; charset=UTF-8
+      Date: Tue, 05 Nov 2013 18:47:19 GMT
+      Server: LOLHAX/1.0
+      X-Betamax: PLAY
+    body: Hey look some text

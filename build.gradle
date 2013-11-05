@@ -1,0 +1,80 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+version = "1.0"
+
+repositories {
+    mavenCentral()
+    maven {
+        name "Big Bee repo"
+        url "http://www.bigbeeconsultants.co.uk/repo"
+    }
+    maven {
+        name "scala tools repo"
+        url "http://scala-tools.org/repo-releases"
+    }
+    maven {
+        name "Spray.io Repo"
+        url "http://repo.spray.io"
+    }
+
+}
+
+project.ext {
+    scalaVersion = "2.10.3"
+    scalaLibVersion = "2.10"
+    scalaCompiler = "org.scala-lang:scala-compiler:${scalaVersion}"
+    scalaLibrary = "org.scala-lang:scala-library:${scalaVersion}"
+
+    beeclient = "uk.co.bigbeeconsultants:bee-client_${scalaLibVersion}:0.23.1"
+    logbackClassic = "ch.qos.logback:logback-classic:1.0.13"
+    betamax = "co.freeside:betamax:1.1.2"
+    groovyDist = "org.codehaus.groovy:groovy-all:1.8.8"
+    scalaTest = "org.scalatest:scalatest_${scalaLibVersion}:2.0"
+
+}
+
+mainClassName = "WTF"
+
+dependencies {
+    compile scalaLibrary
+    compile beeclient, logbackClassic, betamax, groovyDist, scalaTest
+}
+
+//Enable the Zinc based compiler, supposedly it's fast
+tasks.withType(ScalaCompile) {
+    scalaCompileOptions.useAnt = false
+}
+
+
+task withProxy {
+    dependsOn assemble
+}<< {
+    javaexec {
+        main = "WTF"
+        jvmArgs = ['-Dhttp.proxyHost=10.6.38.112', '-Dhttp.proxyPort=5555', '-Dhttps.proxyHost=10.6.38.112', '-Dhttps.proxyPort=5555']
+        classpath = configurations.runtime + sourceSets.main.output
+    }
+}
+
+//Thanks to: https://github.com/coacoas/jaxjug-scalatest/blob/master/build.gradle
+//Also see: http://issues.gradle.org/browse/GRADLE-2659
+/**
+ * Then use this to run the scalatest ant task.  Look to
+ * http://scalatest.org/user_guide/using_the_scalatest_ant_task
+ * for documentation
+ * Also, I overrode the default test task, to run my scala test stuff...
+ * $ gradle test -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=5555 -Dhttps.proxyPort=127.0.0.1 -Dhttps.proxyPort=5555
+ */
+task test(overwrite: true, dependsOn: testClasses) << {
+    description = "Runs the ScalaTest ant task to execute the unit tests!"
+    ant.taskdef(name: 'scalatest',
+            classname: 'org.scalatest.tools.ScalaTestAntTask',
+            classpath: sourceSets.test.runtimeClasspath.asPath)
+    ant.scalatest(runpath: sourceSets.test.output.asPath,
+            haltonfailure: 'true',
+            fork: 'false') {
+        reporter(type: 'stderr')
+        reporter(type: 'junitxml', directory: 'build/unit-test-reports')
+    }
+}
