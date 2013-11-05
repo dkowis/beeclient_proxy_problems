@@ -52,7 +52,7 @@ task withProxy {
 }<< {
     javaexec {
         main = "WTF"
-        jvmArgs = ['-Dhttp.proxyHost=10.6.38.112', '-Dhttp.proxyPort=5555', '-Dhttps.proxyHost=10.6.38.112', '-Dhttps.proxyPort=5555']
+        jvmArgs = ['-Dhttp.proxyHost=127.0.0.1', '-Dhttp.proxyPort=5555', '-Dhttps.proxyHost=127.0.0.1', '-Dhttps.proxyPort=5555']
         classpath = configurations.runtime + sourceSets.main.output
     }
 }
